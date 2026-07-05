@@ -1,0 +1,10 @@
+# إعداد نشر Next.js على Netlify
+[build]
+  command = "npm run build"
+
+# إضافة Next.js الرسمية لنتلفاي (تُثبَّت تلقائياً) — تدعم SSR و API routes و Realtime
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20"

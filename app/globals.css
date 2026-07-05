@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* تعطيل الوضع الداكن التلقائي: صنف dark: لن يعمل إلا بوجود .dark (وهو غير مستخدم) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --background: #fbf9f6;
+  --foreground: #1a1410;
+  --brand: #c2410c;      /* برتقالي محروق — لون العلامة */
+  --brand-dark: #9a3412;
+  --accent: #f59e0b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-cairo);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-cairo), "Segoe UI", Tahoma, sans-serif;
+}
