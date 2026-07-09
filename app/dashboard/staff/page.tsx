@@ -24,8 +24,13 @@ export default async function StaffPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1">الموظفون والصلاحيات</h1>
-      <p className="text-black/60 mb-6">
+      <p className="text-black/60 mb-1">
         أنشئ حسابات لموظفيك (كاشير، شيف، محاسب) وحدّد الأقسام التي يصل إليها كل موظف.
+      </p>
+      <p className="text-sm mb-6">
+        <span className="text-black/50">الموظفون التالون تابعون لفرع: </span>
+        <span className="font-bold text-brand">{restaurant.name}</span>
+        <span className="text-black/50"> — بدّل الفرع من القائمة الجانبية لإدارة موظفي فرع آخر.</span>
       </p>
       <StaffManager staff={list} />
     </div>

@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo, Lalezar, Rakkas, Aref_Ruqaa, Reem_Kufi } from "next/font/google";
 import "./globals.css";
+import PwaRegister from "@/components/PwaRegister";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -14,9 +15,32 @@ const arefRuqaa = Aref_Ruqaa({ variable: "--font-display-3", weight: "700", subs
 const reemKufi = Reem_Kufi({ variable: "--font-display-4", weight: "700", subsets: ["arabic", "latin"] });
 
 export const metadata: Metadata = {
+  applicationName: "مطاعم رسلان",
   title: "سيستم إدارة المطاعم الذكي",
   description:
     "نظام متكامل لإدارة المطاعم من طلبات العملاء وإدارة المطبخ إلى تحليل أفضل الأطباق وأداء المبيعات",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "مطاعم رسلان",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c2410c",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -30,7 +54,10 @@ export default function RootLayout({
       dir="rtl"
       className={`${cairo.variable} ${lalezar.variable} ${rakkas.variable} ${arefRuqaa.variable} ${reemKufi.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

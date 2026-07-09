@@ -54,6 +54,7 @@ export async function linkIngredient(formData: FormData): Promise<void> {
     .upsert({ product_id, inventory_item_id, amount }, { onConflict: "product_id,inventory_item_id" });
   await recomputeStock(supabase, restaurant.id);
   revalidatePath("/dashboard/inventory");
+  revalidatePath("/dashboard/menu");
 }
 
 export async function unlinkIngredient(formData: FormData): Promise<void> {
@@ -68,4 +69,5 @@ export async function unlinkIngredient(formData: FormData): Promise<void> {
     .eq("inventory_item_id", inventory_item_id);
   if (restaurant) await recomputeStock(supabase, restaurant.id);
   revalidatePath("/dashboard/inventory");
+  revalidatePath("/dashboard/menu");
 }

@@ -5,6 +5,7 @@ import { getAccess } from "@/lib/access";
 import { isSuperAdmin } from "@/lib/admin";
 import { signOut } from "@/lib/actions/auth";
 import Sidebar from "@/components/Sidebar";
+import BranchSwitcher from "@/components/BranchSwitcher";
 import PoweredBy from "@/components/PoweredBy";
 
 export default async function DashboardLayout({
@@ -34,7 +35,7 @@ export default async function DashboardLayout({
     );
   }
 
-  const { restaurant, isOwner, sections } = access;
+  const { restaurant, isOwner, sections, branches } = access;
 
   // بوابة الموافقة (للمالك فقط)
   if (isOwner && restaurant.status !== "active") {
@@ -75,6 +76,11 @@ export default async function DashboardLayout({
             )}
             <span className="truncate">{restaurant.name}</span>
           </Link>
+          {isOwner && branches.length > 1 && (
+            <div className="mt-3">
+              <BranchSwitcher branches={branches} activeId={restaurant.id} />
+            </div>
+          )}
         </div>
         <Sidebar sections={[...sections]} isOwner={isOwner} />
         <div className="mt-auto p-3 border-t border-black/10">

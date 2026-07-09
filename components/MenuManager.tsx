@@ -10,22 +10,35 @@ import {
   toggleProductAvailability,
   type ActionState,
 } from "@/lib/actions/menu";
+import { linkIngredient, unlinkIngredient } from "@/lib/actions/inventory";
 import ImageUpload from "@/components/ImageUpload";
 import { TAG_LABELS, type Category, type Product, type ProductTag } from "@/lib/types";
+
+type InventoryItem = { id: string; name: string; unit: string };
+type IngredientLink = { product_id: string; inventory_item_id: string; amount: number };
 
 export default function MenuManager({
   restaurantId,
   currency,
   categories,
   products,
+  inventoryItems,
+  ingredientLinks,
 }: {
   restaurantId: string;
   currency: string;
   categories: Category[];
   products: Product[];
+  inventoryItems: InventoryItem[];
+  ingredientLinks: IngredientLink[];
 }) {
   const router = useRouter();
   const [showProductForm, setShowProductForm] = useState(false);
+  const [openIngredients, setOpenIngredients] = useState<string | null>(null);
+
+  const itemName = (id: string) => inventoryItems.find((i) => i.id === id)?.name ?? "—";
+  const linksFor = (productId: string) =>
+    ingredientLinks.filter((l) => l.product_id === productId);
 
   const [catState, catAction] = useActionState<ActionState, FormData>(
     async (prev, fd) => {
@@ -175,7 +188,8 @@ export default function MenuManager({
                   <p className="px-4 py-3 text-sm text-black/40">لا منتجات في هذا القسم.</p>
                 )}
                 {items.map((p) => (
-                  <div key={p.id} className="flex items-center gap-4 px-4 py-3">
+                  <div key={p.id}>
+                  <div className="flex items-center gap-4 px-4 py-3">
                     {p.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={p.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
@@ -203,6 +217,13 @@ export default function MenuManager({
                       {p.price} {currency}
                     </div>
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setOpenIngredients((v) => (v === p.id ? null : p.id))}
+                        className={`text-xs rounded border px-2 py-1 hover:bg-black/5 ${!p.in_stock ? "border-red-300 text-red-700" : ""}`}
+                      >
+                        🔗 الخامات ({linksFor(p.id).length})
+                      </button>
                       <form action={toggleProductAvailability}>
                         <input type="hidden" name="id" value={p.id} />
                         <input type="hidden" name="value" value={(!p.is_available).toString()} />
@@ -215,6 +236,64 @@ export default function MenuManager({
                         <button className="text-xs text-red-600 hover:underline">حذف</button>
                       </form>
                     </div>
+                  </div>
+                  {openIngredients === p.id && (
+                    <div className="px-4 pb-3 bg-black/[0.02] dark:bg-white/5">
+                      <div className="text-xs text-black/50 mb-2">
+                        الخامات المستهلكة لكل وحدة من «{p.name_ar}». عند نفاد أي خامة يُخفى المنتج تلقائياً.
+                      </div>
+                      {inventoryItems.length === 0 ? (
+                        <p className="text-xs text-black/40">أضف خامات في قسم «المخزون» أولاً.</p>
+                      ) : (
+                        <>
+                          <form action={linkIngredient} className="flex flex-wrap items-end gap-2 mb-2">
+                            <input type="hidden" name="product_id" value={p.id} />
+                            <select
+                              name="inventory_item_id"
+                              className="rounded-lg border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5 text-sm"
+                            >
+                              {inventoryItems.map((i) => (
+                                <option key={i.id} value={i.id}>
+                                  {i.name}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              name="amount"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              defaultValue={1}
+                              className="w-20 rounded-lg border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5 text-sm"
+                            />
+                            <button className="text-xs rounded-lg bg-brand text-white px-3 py-1.5">
+                              ربط الخامة
+                            </button>
+                          </form>
+                          <div className="flex flex-wrap gap-2">
+                            {linksFor(p.id).length === 0 && (
+                              <span className="text-xs text-black/40">لا خامات مربوطة بهذا المنتج.</span>
+                            )}
+                            {linksFor(p.id).map((l) => (
+                              <span
+                                key={l.inventory_item_id}
+                                className="inline-flex items-center gap-1 text-xs bg-black/5 dark:bg-white/10 rounded-lg px-2 py-1"
+                              >
+                                {itemName(l.inventory_item_id)} × {l.amount}
+                                <form action={unlinkIngredient}>
+                                  <input type="hidden" name="product_id" value={p.id} />
+                                  <input type="hidden" name="inventory_item_id" value={l.inventory_item_id} />
+                                  <button className="text-red-600" title="فك الربط">
+                                    ✕
+                                  </button>
+                                </form>
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                   </div>
                 ))}
               </div>

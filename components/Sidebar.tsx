@@ -21,6 +21,7 @@ const items: Item[] = [
   { href: "/dashboard/kitchen", label: "المطبخ", icon: "👨‍🍳", section: "kitchen" },
   { href: "/dashboard/analytics", label: "المحاسبة والتحليل", icon: "📊", section: "analytics" },
   { href: "/dashboard/inventory", label: "المخزون", icon: "📦", section: "inventory" },
+  { href: "/dashboard/branches", label: "الفروع", icon: "🏬", ownerOnly: true },
   { href: "/dashboard/staff", label: "الموظفون", icon: "👥", ownerOnly: true },
   { href: "/dashboard/settings", label: "الإعدادات", icon: "⚙️", ownerOnly: true },
 ];

@@ -7,7 +7,7 @@ export default async function MenuPage() {
   const restaurant = await requireAccess("menu");
 
   const supabase = await createClient();
-  const [{ data: categories }, { data: products }] = await Promise.all([
+  const [{ data: categories }, { data: products }, { data: inventoryItems }] = await Promise.all([
     supabase
       .from("categories")
       .select("*")
@@ -19,7 +19,20 @@ export default async function MenuPage() {
       .select("*")
       .eq("restaurant_id", restaurant.id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("inventory_items")
+      .select("id, name, unit")
+      .eq("restaurant_id", restaurant.id)
+      .order("name", { ascending: true }),
   ]);
+
+  const prodIds = (products ?? []).map((p) => p.id);
+  const { data: ingredientLinks } = prodIds.length
+    ? await supabase
+        .from("product_ingredients")
+        .select("product_id, inventory_item_id, amount")
+        .in("product_id", prodIds)
+    : { data: [] };
 
   return (
     <div>
@@ -32,6 +45,8 @@ export default async function MenuPage() {
         currency={restaurant.currency}
         categories={(categories as Category[]) ?? []}
         products={(products as Product[]) ?? []}
+        inventoryItems={inventoryItems ?? []}
+        ingredientLinks={ingredientLinks ?? []}
       />
     </div>
   );

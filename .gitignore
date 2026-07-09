@@ -43,3 +43,11 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Android Studio IDE files
+android/.idea/
+android/.gradle/
+android/local.properties
+android/app/build/
+android/build/
+.gradle/
