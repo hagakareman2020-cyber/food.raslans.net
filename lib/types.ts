@@ -14,6 +14,7 @@ export type Restaurant = {
     languages?: string[];
     menu_pdf_url?: string;
     menu_source?: "generated" | "pdf";
+    address?: string;
   };
   status: string;
   created_at: string;
