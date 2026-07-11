@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getMyRestaurant } from "@/lib/auth";
 import { getGroq, GROQ_MODEL, buildMenuPrompt, type MenuInput } from "@/lib/groq";
 import { fetchFoodImages, fetchFoodImage } from "@/lib/images";
 import { randomDesignIndex } from "@/lib/menuDesigns";
@@ -24,12 +25,8 @@ export async function POST() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("*")
-    .eq("owner_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  // الفرع النشِط (يحترم اختيار الفرع) بدل أول مطعم
+  const restaurant = await getMyRestaurant();
   if (!restaurant)
     return NextResponse.json({ error: "لا يوجد مطعم" }, { status: 400 });
 

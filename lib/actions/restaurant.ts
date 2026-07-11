@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getMyRestaurant } from "@/lib/auth";
 
 function slugify(name: string) {
   const base = name
@@ -52,12 +53,7 @@ export async function setPdfMenu(url: string): Promise<ActionState> {
   } = await supabase.auth.getUser();
   if (!user) return { error: "غير مصرح" };
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id, settings")
-    .eq("owner_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const restaurant = await getMyRestaurant();
   if (!restaurant) return { error: "لا يوجد مطعم" };
 
   const settings = {
@@ -82,12 +78,7 @@ export async function clearPdfMenu(): Promise<ActionState> {
   } = await supabase.auth.getUser();
   if (!user) return { error: "غير مصرح" };
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id, settings")
-    .eq("owner_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const restaurant = await getMyRestaurant();
   if (!restaurant) return { error: "لا يوجد مطعم" };
 
   const settings = { ...(restaurant.settings as Record<string, unknown>) };
@@ -109,12 +100,7 @@ export async function updateWaterSettings(formData: FormData): Promise<void> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id, settings")
-    .eq("owner_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const restaurant = await getMyRestaurant();
   if (!restaurant) return;
 
   const bottles = Math.max(0, Math.min(10, Number(formData.get("water_bottles") || 0)));

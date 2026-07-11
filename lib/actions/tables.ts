@@ -2,20 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getMyRestaurant } from "@/lib/auth";
 
 async function myRestaurantId() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_id", user.id)
-    .limit(1)
-    .maybeSingle();
-  return data?.id ?? null;
+  const restaurant = await getMyRestaurant();
+  return restaurant?.id ?? null;
 }
 
 // إضافة ترابيزة واحدة أو أكثر بأرقام تلقائية متتالية
