@@ -132,9 +132,14 @@ export async function updateBusinessSettings(formData: FormData): Promise<void> 
 
   const bt = String(formData.get("business_type") || "restaurant");
   const business_type = ["restaurant", "cafe", "both"].includes(bt) ? bt : "restaurant";
-  const patch: Record<string, unknown> = {
-    settings: { ...(restaurant.settings as Record<string, unknown>), business_type },
+  const address = String(formData.get("address") || "").trim();
+  const settings: Record<string, unknown> = {
+    ...(restaurant.settings as Record<string, unknown>),
+    business_type,
   };
+  if (address) settings.address = address;
+  else delete settings.address;
+  const patch: Record<string, unknown> = { settings };
   const name = String(formData.get("name") || "").trim();
   const currency = String(formData.get("currency") || "").trim();
   if (name) patch.name = name;

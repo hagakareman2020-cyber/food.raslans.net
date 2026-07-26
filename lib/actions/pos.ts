@@ -11,6 +11,7 @@ export type PosResult = { orderId?: string; total?: number; error?: string };
 // إنشاء طلب من الكاشير (POS) — يصل للمطبخ فوراً عبر Realtime
 export async function createPosOrder(payload: {
   items: { product_id: string; quantity: number }[];
+  customItems?: { name: string; price: number; quantity: number }[]; // أصناف مخصّصة (بصل زيادة… إلخ)
   tableNumber: number | null; // null = تيك أواي
   note?: string;
 }): Promise<PosResult> {
@@ -19,7 +20,8 @@ export async function createPosOrder(payload: {
   if (!restaurant) return { error: "غير مصرح" };
 
   const items = Array.isArray(payload.items) ? payload.items : [];
-  if (items.length === 0) return { error: "السلة فارغة" };
+  const customItems = Array.isArray(payload.customItems) ? payload.customItems : [];
+  if (items.length === 0 && customItems.length === 0) return { error: "السلة فارغة" };
 
   const ids = items.map((i) => i.product_id);
   const { data: products } = await supabase
@@ -47,6 +49,17 @@ export async function createPosOrder(payload: {
     eta = Math.max(eta, p.prep_minutes);
     rows.push({ product_id: p.id, name_ar: p.name_ar, price: Number(p.price), quantity: qty, is_free: false });
   }
+
+  // أصناف مخصّصة يكتبها الكاشير بسعر يدوي (بدون product_id ولا خصم مخزون)
+  for (const ci of customItems) {
+    const name = String(ci.name || "").trim().slice(0, 100);
+    const price = Math.max(0, Number(ci.price) || 0);
+    const qty = Math.max(1, Math.min(99, Number(ci.quantity) || 1));
+    if (!name) continue;
+    total += price * qty;
+    rows.push({ product_id: null, name_ar: name, price, quantity: qty, is_free: false });
+  }
+
   if (rows.length === 0) return { error: "لا توجد منتجات متاحة" };
 
   // مياه تُضاف تلقائياً (بسعرها إن وُجد)

@@ -5,6 +5,7 @@ import { createPosOrder } from "@/lib/actions/pos";
 import type { Category, Product } from "@/lib/types";
 
 type OrderType = "dine_in" | "takeaway";
+type CustomItem = { id: string; name: string; price: number; qty: number };
 
 export default function PosTerminal({
   restaurantName,
@@ -21,6 +22,9 @@ export default function PosTerminal({
 }) {
   const [activeCat, setActiveCat] = useState<string>("all");
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [customItems, setCustomItems] = useState<CustomItem[]>([]);
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("dine_in");
   const [table, setTable] = useState<number | "">(tableNumbers[0] ?? "");
   const [note, setNote] = useState("");
@@ -31,11 +35,23 @@ export default function PosTerminal({
   const prodById = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
   const shown = activeCat === "all" ? products : products.filter((p) => p.category_id === activeCat);
 
-  const count = Object.values(cart).reduce((a, b) => a + b, 0);
-  const total = Object.entries(cart).reduce(
-    (s, [id, q]) => s + (Number(prodById.get(id)?.price) || 0) * q,
-    0
-  );
+  const customTotal = customItems.reduce((s, c) => s + c.price * c.qty, 0);
+  const count = Object.values(cart).reduce((a, b) => a + b, 0) + customItems.reduce((a, c) => a + c.qty, 0);
+  const total =
+    Object.entries(cart).reduce((s, [id, q]) => s + (Number(prodById.get(id)?.price) || 0) * q, 0) +
+    customTotal;
+
+  function addCustom() {
+    const name = customName.trim();
+    const price = Number(customPrice);
+    if (!name || !Number.isFinite(price) || price < 0) return;
+    setCustomItems((c) => [...c, { id: crypto.randomUUID(), name, price, qty: 1 }]);
+    setCustomName("");
+    setCustomPrice("");
+  }
+  function setCustomQty(id: string, qty: number) {
+    setCustomItems((c) => (qty <= 0 ? c.filter((x) => x.id !== id) : c.map((x) => (x.id === id ? { ...x, qty } : x))));
+  }
 
   function setQty(id: string, qty: number) {
     setCart((c) => {
@@ -47,6 +63,7 @@ export default function PosTerminal({
   }
   function clear() {
     setCart({});
+    setCustomItems([]);
     setNote("");
     setError(null);
   }
@@ -60,6 +77,7 @@ export default function PosTerminal({
     start(async () => {
       const r = await createPosOrder({
         items: Object.entries(cart).map(([product_id, quantity]) => ({ product_id, quantity })),
+        customItems: customItems.map((c) => ({ name: c.name, price: c.price, quantity: c.qty })),
         tableNumber: orderType === "dine_in" ? Number(table) : null,
         note,
       });
@@ -68,19 +86,24 @@ export default function PosTerminal({
         setDone({ total: r.total ?? total });
         printReceipt(r.total ?? total);
         setCart({});
+        setCustomItems([]);
         setNote("");
       }
     });
   }
 
   function printReceipt(finalTotal: number) {
-    const lines = Object.entries(cart)
+    const prodLines = Object.entries(cart)
       .map(([id, q]) => {
         const p = prodById.get(id);
         if (!p) return "";
         return `<tr><td>${p.name_ar}</td><td style="text-align:center">${q}</td><td style="text-align:left">${Number(p.price) * q} ${currency}</td></tr>`;
       })
       .join("");
+    const customLines = customItems
+      .map((c) => `<tr><td>${c.name}</td><td style="text-align:center">${c.qty}</td><td style="text-align:left">${c.price * c.qty} ${currency}</td></tr>`)
+      .join("");
+    const lines = prodLines + customLines;
     const w = window.open("", "_blank", "width=380,height=600");
     if (!w) return;
     w.document.write(`
@@ -186,24 +209,70 @@ export default function PosTerminal({
           {count === 0 ? (
             <p className="text-black/40 text-center py-10 text-sm">أضف منتجات للتذكرة</p>
           ) : (
-            Object.entries(cart).map(([id, q]) => {
-              const p = prodById.get(id);
-              if (!p) return null;
-              return (
-                <div key={id} className="flex items-center gap-2 py-2 border-b border-black/5">
+            <>
+              {Object.entries(cart).map(([id, q]) => {
+                const p = prodById.get(id);
+                if (!p) return null;
+                return (
+                  <div key={id} className="flex items-center gap-2 py-2 border-b border-black/5">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold truncate">{p.name_ar}</div>
+                      <div className="text-xs text-black/50">{Number(p.price) * q} {currency}</div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => setQty(id, q - 1)} className="w-6 h-6 rounded-full border grid place-items-center">−</button>
+                      <span className="w-5 text-center text-sm font-bold">{q}</span>
+                      <button onClick={() => setQty(id, q + 1)} className="w-6 h-6 rounded-full bg-brand text-white grid place-items-center">+</button>
+                    </div>
+                  </div>
+                );
+              })}
+              {customItems.map((c) => (
+                <div key={c.id} className="flex items-center gap-2 py-2 border-b border-black/5">
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold truncate">{p.name_ar}</div>
-                    <div className="text-xs text-black/50">{Number(p.price) * q} {currency}</div>
+                    <div className="text-sm font-semibold truncate">
+                      {c.name} <span className="text-[10px] text-brand font-normal">مخصّص</span>
+                    </div>
+                    <div className="text-xs text-black/50">{c.price * c.qty} {currency}</div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => setQty(id, q - 1)} className="w-6 h-6 rounded-full border grid place-items-center">−</button>
-                    <span className="w-5 text-center text-sm font-bold">{q}</span>
-                    <button onClick={() => setQty(id, q + 1)} className="w-6 h-6 rounded-full bg-brand text-white grid place-items-center">+</button>
+                    <button onClick={() => setCustomQty(c.id, c.qty - 1)} className="w-6 h-6 rounded-full border grid place-items-center">−</button>
+                    <span className="w-5 text-center text-sm font-bold">{c.qty}</span>
+                    <button onClick={() => setCustomQty(c.id, c.qty + 1)} className="w-6 h-6 rounded-full bg-brand text-white grid place-items-center">+</button>
                   </div>
                 </div>
-              );
-            })
+              ))}
+            </>
           )}
+        </div>
+
+        {/* إضافة صنف مخصّص بسعر يدوي — مثال: بصل زيادة 30ج */}
+        <div className="mt-3 flex items-center gap-1.5">
+          <input
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addCustom()}
+            placeholder="صنف مخصّص (بصل زيادة…)"
+            className="flex-1 min-w-0 rounded-lg border border-black/15 px-2.5 py-2 text-sm"
+          />
+          <input
+            value={customPrice}
+            onChange={(e) => setCustomPrice(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addCustom()}
+            type="number"
+            min={0}
+            step="0.5"
+            placeholder="السعر"
+            className="w-20 rounded-lg border border-black/15 px-2 py-2 text-sm"
+          />
+          <button
+            onClick={addCustom}
+            disabled={!customName.trim() || customPrice === ""}
+            className="shrink-0 rounded-lg bg-black/80 text-white w-9 h-9 grid place-items-center text-lg disabled:opacity-40"
+            title="إضافة صنف مخصّص"
+          >
+            +
+          </button>
         </div>
 
         <textarea

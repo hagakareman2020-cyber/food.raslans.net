@@ -45,10 +45,19 @@ export default async function SettingsPage() {
           </div>
         </div>
         <div>
-          <label className="block text-sm mb-1">اسم النشاط</label>
+          <label className="block text-sm mb-1">اسم النشاط / الفرع</label>
           <input
             name="name"
             defaultValue={restaurant.name}
+            className="w-full rounded-lg border border-black/15 px-3 py-2 outline-none focus:border-brand"
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">عنوان الفرع (يظهر في قائمة الفروع)</label>
+          <input
+            name="address"
+            defaultValue={restaurant.settings?.address ?? ""}
+            placeholder="مثال: المهندسين"
             className="w-full rounded-lg border border-black/15 px-3 py-2 outline-none focus:border-brand"
           />
         </div>

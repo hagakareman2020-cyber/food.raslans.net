@@ -2,7 +2,13 @@
 
 import { switchBranch } from "@/lib/actions/branch";
 
-type Branch = { id: string; name: string };
+type Branch = { id: string; name: string; settings?: { address?: string } | null };
+
+// اسم الفرع + عنوانه (إن وُجد): "مطعم البركة — المهندسين"
+function branchLabel(b: Branch) {
+  const addr = b.settings?.address?.trim();
+  return addr ? `${b.name} — ${addr}` : b.name;
+}
 
 // مبدّل الفرع في رأس اللوحة: يظهر للمالك عند امتلاكه أكثر من فرع.
 export default function BranchSwitcher({
@@ -23,7 +29,7 @@ export default function BranchSwitcher({
       >
         {branches.map((b) => (
           <option key={b.id} value={b.id}>
-            {b.name}
+            {branchLabel(b)}
           </option>
         ))}
       </select>
