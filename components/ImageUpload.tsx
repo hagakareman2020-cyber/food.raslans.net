@@ -9,12 +9,14 @@ export default function ImageUpload({
   name,
   folder,
   label = "الصورة",
+  initialUrl = "",
 }: {
   name: string;
   folder: string;
   label?: string;
+  initialUrl?: string;
 }) {
-  const [url, setUrl] = useState<string>("");
+  const [url, setUrl] = useState<string>(initialUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

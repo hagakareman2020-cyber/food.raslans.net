@@ -8,6 +8,7 @@ import Sidebar from "@/components/Sidebar";
 import BranchSwitcher from "@/components/BranchSwitcher";
 import PoweredBy from "@/components/PoweredBy";
 import { BrandMark } from "@/components/BrandLogo";
+import PushRegister from "@/components/PushRegister";
 import { businessLabels } from "@/lib/businessType";
 
 export default async function DashboardLayout({
@@ -68,6 +69,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex-1 flex">
+      <PushRegister />
       <aside className="w-64 shrink-0 border-l border-black/10 min-h-screen hidden md:flex flex-col">
         <div className="p-4 border-b border-black/10">
           <Link href="/dashboard" className="flex items-center gap-2 font-bold">

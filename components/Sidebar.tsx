@@ -22,6 +22,8 @@ const items: Item[] = [
   { href: "/dashboard/analytics", label: "المحاسبة والتحليل", icon: "📊", section: "analytics" },
   { href: "/dashboard/inventory", label: "المخزون", icon: "📦", section: "inventory" },
   { href: "/dashboard/attendance", label: "الحضور والانصراف", icon: "🕒", always: true },
+  { href: "/dashboard/payroll", label: "الرواتب", icon: "💵", ownerOnly: true },
+  { href: "/dashboard/policies", label: "سياسات الحضور", icon: "📋", ownerOnly: true },
   { href: "/dashboard/branches", label: "الفروع", icon: "🏬", ownerOnly: true },
   { href: "/dashboard/staff", label: "الموظفون", icon: "👥", ownerOnly: true },
   { href: "/dashboard/settings", label: "الإعدادات", icon: "⚙️", ownerOnly: true },

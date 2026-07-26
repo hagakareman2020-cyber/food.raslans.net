@@ -51,54 +51,6 @@ export async function createRestaurant(
   redirect("/dashboard");
 }
 
-// حفظ منيو PDF مرفوع كمنيو معتمد للمطعم (يُخزَّن الرابط داخل settings)
-export async function setPdfMenu(url: string): Promise<ActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "غير مصرح" };
-
-  const restaurant = await getMyRestaurant();
-  if (!restaurant) return { error: "لا يوجد مطعم" };
-
-  const settings = {
-    ...(restaurant.settings as Record<string, unknown>),
-    menu_pdf_url: url,
-    menu_source: "pdf",
-  };
-  const { error } = await supabase
-    .from("restaurants")
-    .update({ settings })
-    .eq("id", restaurant.id);
-  if (error) return { error: error.message };
-  revalidatePath("/dashboard/generate");
-  return { ok: true };
-}
-
-// إزالة منيو الـ PDF والعودة للمنيو المُولّد
-export async function clearPdfMenu(): Promise<ActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "غير مصرح" };
-
-  const restaurant = await getMyRestaurant();
-  if (!restaurant) return { error: "لا يوجد مطعم" };
-
-  const settings = { ...(restaurant.settings as Record<string, unknown>) };
-  delete settings.menu_pdf_url;
-  settings.menu_source = "generated";
-  const { error } = await supabase
-    .from("restaurants")
-    .update({ settings })
-    .eq("id", restaurant.id);
-  if (error) return { error: error.message };
-  revalidatePath("/dashboard/generate");
-  return { ok: true };
-}
-
 // ضبط سعر وعدد زجاجات المياه المضافة تلقائياً
 export async function updateWaterSettings(formData: FormData): Promise<void> {
   const supabase = await createClient();
@@ -145,9 +97,55 @@ export async function updateBusinessSettings(formData: FormData): Promise<void> 
   if (name) patch.name = name;
   if (currency) patch.currency = currency;
 
+  // الشعار: حذف صريح، أو تحديث برابط جديد مرفوع
+  if (formData.get("remove_logo")) {
+    patch.logo_url = null;
+  } else {
+    const logo = String(formData.get("logo_url") || "").trim();
+    if (logo) patch.logo_url = logo;
+  }
+
   await supabase.from("restaurants").update(patch).eq("id", restaurant.id);
   revalidatePath("/dashboard/settings");
   revalidatePath("/dashboard");
+}
+
+// حفظ النطاق الجغرافي للفرع (موقع + نصف قطر + تفعيل) — لتقييد تسجيل الحضور داخل الفرع
+export async function updateGeofence(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  const restaurant = await getMyRestaurant();
+  if (!restaurant) return;
+
+  const enabled = !!formData.get("enabled");
+  const latRaw = String(formData.get("lat") || "").trim();
+  const lngRaw = String(formData.get("lng") || "").trim();
+  const lat = latRaw ? Number(latRaw) : NaN;
+  const lng = lngRaw ? Number(lngRaw) : NaN;
+  const radius_m = Math.max(20, Math.min(2000, Number(formData.get("radius_m") || 100)));
+
+  const settings: Record<string, unknown> = {
+    ...(restaurant.settings as Record<string, unknown>),
+    attendance_selfie: !!formData.get("selfie"),
+    attendance_face: !!formData.get("face"),
+  };
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    settings.geofence = { lat, lng, radius_m, enabled };
+  } else {
+    // بلا إحداثيات لا يمكن التفعيل — نحفظ نصف القطر والحالة فقط إن وُجد موقع سابق
+    const prev = settings.geofence as { lat?: number; lng?: number } | undefined;
+    if (prev?.lat != null && prev?.lng != null) {
+      settings.geofence = { ...prev, radius_m, enabled };
+    } else {
+      delete settings.geofence;
+    }
+  }
+
+  await supabase.from("restaurants").update({ settings }).eq("id", restaurant.id);
+  revalidatePath("/dashboard/settings");
 }
 
 export async function updateRestaurant(id: string, formData: FormData) {

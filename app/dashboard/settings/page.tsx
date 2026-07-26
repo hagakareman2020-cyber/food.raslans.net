@@ -2,6 +2,8 @@ import { requireOwner } from "@/lib/access";
 import { updateWaterSettings, updateBusinessSettings } from "@/lib/actions/restaurant";
 import { waterConfig } from "@/lib/water";
 import { BUSINESS_TYPES, getBusinessType, businessLabels } from "@/lib/businessType";
+import ImageUpload from "@/components/ImageUpload";
+import GeofenceSettings from "@/components/GeofenceSettings";
 
 const CURRENCIES = [
   { value: "EGP", label: "جنيه مصري (EGP)" },
@@ -15,6 +17,9 @@ export default async function SettingsPage() {
   const water = waterConfig(restaurant.settings);
   const currentType = getBusinessType(restaurant.settings);
   const labels = businessLabels(restaurant.settings);
+  const geofence = restaurant.settings?.geofence ?? null;
+  const selfieOn = !!(restaurant.settings as { attendance_selfie?: boolean })?.attendance_selfie;
+  const faceOn = !!(restaurant.settings as { attendance_face?: boolean })?.attendance_face;
 
   return (
     <div className="max-w-lg">
@@ -75,10 +80,29 @@ export default async function SettingsPage() {
             ))}
           </select>
         </div>
+        <div className="border-t border-black/10 pt-4">
+          <ImageUpload
+            name="logo_url"
+            folder="logos"
+            label="شعار النشاط"
+            initialUrl={restaurant.logo_url ?? ""}
+          />
+          <p className="mt-1 text-xs text-black/45">
+            ارفع صورة جديدة لتغيير الشعار. يظهر الشعار في اللوحة وفي منيو العملاء.
+          </p>
+          {restaurant.logo_url && (
+            <label className="mt-2 flex items-center gap-2 text-sm text-red-600 cursor-pointer select-none">
+              <input type="checkbox" name="remove_logo" value="1" className="accent-red-600 w-4 h-4" />
+              حذف الشعار الحالي والعودة للّوجو العام
+            </label>
+          )}
+        </div>
         <button className="rounded-lg bg-brand text-white px-6 py-2.5 font-semibold hover:bg-brand-dark">
           حفظ بيانات النشاط
         </button>
       </form>
+
+      <GeofenceSettings current={geofence} selfie={selfieOn} face={faceOn} />
 
       <form action={updateWaterSettings} className="rounded-2xl border border-black/10 bg-white p-6 space-y-4">
         <h2 className="font-bold">💧 المياه المضافة تلقائياً</h2>

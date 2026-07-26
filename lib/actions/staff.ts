@@ -67,6 +67,39 @@ export async function updateStaff(formData: FormData): Promise<void> {
   revalidatePath("/dashboard/staff");
 }
 
+// حفظ بيانات الراتب والجدول والسياسات للموظف (للمالك)
+export async function updateStaffPayroll(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const rid = await ownerRestaurantId();
+  if (!rid) return;
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+
+  const base_salary = Math.max(0, Number(formData.get("base_salary") || 0));
+  const work_days_per_month = Math.max(1, Math.min(31, Number(formData.get("work_days_per_month") || 26)));
+  const absence_compensation = !!formData.get("absence_compensation");
+  const work_weekdays = (formData.getAll("work_weekdays") as string[])
+    .map((n) => Number(n))
+    .filter((n) => n >= 0 && n <= 6);
+  const late_policy_id = String(formData.get("late_policy_id") || "") || null;
+  const overtime_policy_id = String(formData.get("overtime_policy_id") || "") || null;
+
+  await supabase
+    .from("staff")
+    .update({
+      base_salary,
+      work_days_per_month,
+      absence_compensation,
+      work_weekdays,
+      late_policy_id,
+      overtime_policy_id,
+    })
+    .eq("id", id)
+    .eq("restaurant_id", rid);
+  revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/payroll");
+}
+
 export async function deleteStaff(formData: FormData): Promise<void> {
   const rid = await ownerRestaurantId();
   if (!rid) return;

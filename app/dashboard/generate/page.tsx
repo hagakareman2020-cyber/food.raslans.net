@@ -1,7 +1,6 @@
 import { requireAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import MenuGenerator from "@/components/MenuGenerator";
-import PdfMenuUploader from "@/components/PdfMenuUploader";
 
 export default async function GeneratePage() {
   const restaurant = await requireAccess("menu");
@@ -27,10 +26,6 @@ export default async function GeneratePage() {
         restaurantName={restaurant.name}
         logoUrl={restaurant.logo_url}
       />
-
-      <div className="mt-8">
-        <PdfMenuUploader currentUrl={restaurant.settings?.menu_pdf_url ?? null} />
-      </div>
     </div>
   );
 }

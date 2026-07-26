@@ -12,10 +12,9 @@ export type Restaurant = {
     water_bottles?: number;
     water_price?: number;
     languages?: string[];
-    menu_pdf_url?: string;
-    menu_source?: "generated" | "pdf";
     address?: string;
     business_type?: "restaurant" | "cafe" | "both";
+    geofence?: { lat: number; lng: number; radius_m: number; enabled: boolean };
   };
   status: string;
   created_at: string;
