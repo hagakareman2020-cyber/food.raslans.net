@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { registerForPush, listenForeground } from "@/lib/firebaseClient";
+import { registerNativePush } from "@/lib/nativePush";
 import { withBase } from "@/lib/basePath";
 
 // يسجّل رمز جهاز الإشعارات مرة عند تحميل اللوحة (للمالك أساساً لاستقبال تنبيهات التأخير)
@@ -9,6 +10,10 @@ export default function PushRegister() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // داخل تطبيق أندرويد → إشعارات Native (تصل والتطبيق مقفول). غير كده → Web Push
+      const isNative = await registerNativePush();
+      if (isNative) return;
+
       const token = await registerForPush();
       if (cancelled || !token) return;
       // لا نُعيد الإرسال لنفس الرمز في نفس الجلسة

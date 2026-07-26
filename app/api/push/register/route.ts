@@ -10,10 +10,11 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  const { token } = await req.json().catch(() => ({ token: null }));
+  const { token, platform } = await req.json().catch(() => ({ token: null, platform: null }));
   if (!token || typeof token !== "string") {
     return NextResponse.json({ error: "رمز غير صالح" }, { status: 400 });
   }
+  const plat = platform === "android" || platform === "ios" ? platform : "web";
 
   const restaurant = await getActiveRestaurant();
 
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
       user_id: user.id,
       restaurant_id: restaurant?.id ?? null,
       token,
-      platform: "web",
+      platform: plat,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "token" }
