@@ -132,7 +132,7 @@ export default function OrderTracker({ token, orderId }: { token: string; orderI
       {/* تقييم الأطباق بعد التقديم */}
       {order.status === "served" && !rated && (
         <div className="mt-6 border-t border-black/10 pt-4 text-right">
-          <h3 className="font-bold text-center mb-3">قيّم أطباقك 🌟</h3>
+          <h3 className="font-bold text-center mb-3">قيّم طلبك 🌟</h3>
           <div className="space-y-2">
             {(order.order_items ?? [])
               .filter((it) => it.product_id && !it.is_free)

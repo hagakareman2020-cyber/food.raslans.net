@@ -29,7 +29,12 @@ export async function createRestaurant(
   const name = String(formData.get("name") || "").trim();
   const currency = String(formData.get("currency") || "EGP");
   const logo_url = String(formData.get("logo_url") || "") || null;
-  if (!name) return { error: "اسم المطعم مطلوب" };
+  const bt = String(formData.get("business_type") || "restaurant");
+  const business_type = (["restaurant", "cafe", "both"].includes(bt) ? bt : "restaurant") as
+    | "restaurant"
+    | "cafe"
+    | "both";
+  if (!name) return { error: "اسم النشاط مطلوب" };
 
   const { error } = await supabase.from("restaurants").insert({
     owner_id: user.id,
@@ -37,6 +42,7 @@ export async function createRestaurant(
     currency,
     logo_url,
     slug: slugify(name),
+    settings: { free_water_bottles: 2, languages: ["ar", "en"], business_type },
     status: "pending", // بانتظار موافقة الأدمن
   });
   if (error) return { error: error.message };
@@ -112,6 +118,31 @@ export async function updateWaterSettings(formData: FormData): Promise<void> {
   };
   await supabase.from("restaurants").update({ settings }).eq("id", restaurant.id);
   revalidatePath("/dashboard/settings");
+}
+
+// تعديل بيانات النشاط: الاسم، العملة، ونوع النشاط (مطعم/كافيه/الاثنين)
+export async function updateBusinessSettings(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  const restaurant = await getMyRestaurant();
+  if (!restaurant) return;
+
+  const bt = String(formData.get("business_type") || "restaurant");
+  const business_type = ["restaurant", "cafe", "both"].includes(bt) ? bt : "restaurant";
+  const patch: Record<string, unknown> = {
+    settings: { ...(restaurant.settings as Record<string, unknown>), business_type },
+  };
+  const name = String(formData.get("name") || "").trim();
+  const currency = String(formData.get("currency") || "").trim();
+  if (name) patch.name = name;
+  if (currency) patch.currency = currency;
+
+  await supabase.from("restaurants").update(patch).eq("id", restaurant.id);
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
 }
 
 export async function updateRestaurant(id: string, formData: FormData) {

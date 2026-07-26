@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import PoweredBy from "@/components/PoweredBy";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -43,11 +44,12 @@ export default function RegisterPage() {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-12">
+      <BrandLogo size={48} textClassName="text-2xl" subtitle />
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/5 p-8"
       >
-        <h1 className="text-2xl font-bold text-center">سجّل مطعمك</h1>
+        <h1 className="text-2xl font-bold text-center">سجّل نشاطك</h1>
         <p className="text-center text-sm text-black/50 dark:text-white/50 mt-1">
           أنشئ حسابك وابدأ في دقائق
         </p>

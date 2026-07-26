@@ -38,10 +38,12 @@ export default function KitchenBoard({
   restaurantId,
   currency,
   initialOrders,
+  emptyIcon = "🍳",
 }: {
   restaurantId: string;
   currency: string;
   initialOrders: Order[];
+  emptyIcon?: string;
 }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [calls, setCalls] = useState<{ id: string; table_number: number | null }[]>([]);
@@ -163,7 +165,7 @@ export default function KitchenBoard({
 
       {orders.length === 0 ? (
         <div className="text-center text-black/40 py-20">
-          <div className="text-5xl mb-3">🍳</div>
+          <div className="text-5xl mb-3">{emptyIcon}</div>
           لا توجد طلبات حالياً. الطلبات الجديدة ستظهر هنا تلقائياً.
         </div>
       ) : (

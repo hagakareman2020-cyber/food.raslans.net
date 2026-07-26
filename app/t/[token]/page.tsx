@@ -29,7 +29,7 @@ export default async function CustomerMenuPage({
     .maybeSingle();
 
   if (!restaurant || restaurant.status !== "active") {
-    return <Center>هذا المطعم غير متاح حالياً.</Center>;
+    return <Center>هذا المكان غير متاح حالياً.</Center>;
   }
 
   const [{ data: cats }, { data: prods }] = await Promise.all([

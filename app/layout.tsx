@@ -15,15 +15,15 @@ const arefRuqaa = Aref_Ruqaa({ variable: "--font-display-3", weight: "700", subs
 const reemKufi = Reem_Kufi({ variable: "--font-display-4", weight: "700", subsets: ["arabic", "latin"] });
 
 export const metadata: Metadata = {
-  applicationName: "مطاعم رسلان",
-  title: "سيستم إدارة المطاعم الذكي",
+  applicationName: "منيو الذكي",
+  title: "منيو الذكي — إدارة المطاعم والكافيهات",
   description:
-    "نظام متكامل لإدارة المطاعم من طلبات العملاء وإدارة المطبخ إلى تحليل أفضل الأطباق وأداء المبيعات",
+    "نظام متكامل لإدارة المطاعم والكافيهات من طلبات العملاء وإدارة المطبخ والبار إلى تحليل أفضل الأصناف وأداء المبيعات — من رسلان للتسويق",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "مطاعم رسلان",
+    title: "منيو الذكي",
   },
   icons: {
     icon: [

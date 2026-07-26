@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAccess, SECTIONS, type SectionKey } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import OnboardingForm from "@/components/OnboardingForm";
+import { businessLabels } from "@/lib/businessType";
 
 const SECTION_HREF: Record<SectionKey, string> = {
   menu: "/dashboard/menu",
@@ -19,14 +20,15 @@ export default async function DashboardHome() {
   if (!access) {
     return (
       <div className="max-w-lg mx-auto mt-6">
-        <h1 className="text-2xl font-bold">أضف مطعمك</h1>
-        <p className="text-black/60 mt-1">ابدأ بإدخال بيانات مطعمك الأساسية.</p>
+        <h1 className="text-2xl font-bold">أضف نشاطك</h1>
+        <p className="text-black/60 mt-1">ابدأ بإدخال بيانات نشاطك الأساسية.</p>
         <OnboardingForm />
       </div>
     );
   }
 
   const { restaurant, isOwner, sections } = access;
+  const labels = businessLabels(restaurant.settings);
 
   // موظف → ترحيب + روابط أقسامه
   if (!isOwner) {
@@ -69,7 +71,7 @@ export default async function DashboardHome() {
   return (
     <div>
       <h1 className="text-2xl font-bold">مرحباً بك في {restaurant.name} 👋</h1>
-      <p className="text-black/60 mt-1">لوحة تحكم مطعمك.</p>
+      <p className="text-black/60 mt-1">لوحة تحكم {labels.yourPlace}.</p>
 
       <div className="grid gap-4 sm:grid-cols-3 mt-6">
         {stats.map((s) => (

@@ -29,9 +29,11 @@ const items: Item[] = [
 export default function Sidebar({
   sections,
   isOwner,
+  kitchenLabel = "المطبخ",
 }: {
   sections: string[];
   isOwner: boolean;
+  kitchenLabel?: string;
 }) {
   const pathname = usePathname();
   const allowed = new Set(sections);
@@ -57,7 +59,7 @@ export default function Sidebar({
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${cls}`}
           >
             <span>{it.icon}</span>
-            {it.label}
+            {it.href === "/dashboard/kitchen" ? kitchenLabel : it.label}
           </Link>
         );
       })}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import PoweredBy from "@/components/PoweredBy";
+import BrandLogo from "@/components/BrandLogo";
 
 // نحفظ البريد فقط. كلمة المرور تُترك لمدير كلمات السر في المتصفح (مشفّر وآمن).
 const REMEMBER_KEY = "raslan_remembered_email";
@@ -55,13 +56,14 @@ export default function LoginPage() {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-12">
+      <BrandLogo size={48} textClassName="text-2xl" subtitle />
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/5 p-8"
       >
         <h1 className="text-2xl font-bold text-center">تسجيل الدخول</h1>
         <p className="text-center text-sm text-black/50 dark:text-white/50 mt-1">
-          ادخل إلى لوحة تحكم مطعمك
+          ادخل إلى لوحة تحكم نشاطك
         </p>
 
         <label className="block mt-6 text-sm font-medium">البريد الإلكتروني</label>
@@ -119,7 +121,7 @@ export default function LoginPage() {
         <p className="mt-4 text-center text-sm text-black/60 dark:text-white/60">
           ليس لديك حساب؟{" "}
           <Link href="/register" className="text-brand font-semibold">
-            سجّل مطعمك
+            سجّل نشاطك
           </Link>
         </p>
       </form>

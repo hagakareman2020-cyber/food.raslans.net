@@ -7,6 +7,8 @@ import { signOut } from "@/lib/actions/auth";
 import Sidebar from "@/components/Sidebar";
 import BranchSwitcher from "@/components/BranchSwitcher";
 import PoweredBy from "@/components/PoweredBy";
+import { BrandMark } from "@/components/BrandLogo";
+import { businessLabels } from "@/lib/businessType";
 
 export default async function DashboardLayout({
   children,
@@ -36,6 +38,7 @@ export default async function DashboardLayout({
   }
 
   const { restaurant, isOwner, sections, branches } = access;
+  const labels = businessLabels(restaurant.settings);
 
   // بوابة الموافقة (للمالك فقط)
   if (isOwner && restaurant.status !== "active") {
@@ -45,12 +48,12 @@ export default async function DashboardLayout({
         <div className="max-w-md text-center rounded-2xl border border-black/10 bg-white p-8">
           <div className="text-5xl mb-3">{pending ? "⏳" : "🚫"}</div>
           <h1 className="text-xl font-bold">
-            {pending ? "مطعمك قيد المراجعة" : "تم إيقاف الحساب"}
+            {pending ? `${labels.yourPlace} قيد المراجعة` : "تم إيقاف الحساب"}
           </h1>
           <p className="text-black/60 mt-2 text-sm">
             {pending
-              ? "سيراجع فريقنا طلب مطعمك ويُفعّله قريباً."
-              : "تم إيقاف حساب مطعمك. يرجى التواصل مع الإدارة."}
+              ? `سيراجع فريقنا طلب ${labels.yourPlace} ويُفعّله قريباً.`
+              : `تم إيقاف حساب ${labels.yourPlace}. يرجى التواصل مع الإدارة.`}
           </p>
           <form action={signOut} className="mt-6">
             <button className="rounded-lg border border-black/15 px-5 py-2 text-sm hover:bg-black/5">
@@ -72,7 +75,7 @@ export default async function DashboardLayout({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={restaurant.logo_url} alt="" className="w-8 h-8 rounded-lg object-cover" />
             ) : (
-              <span className="text-xl">🍽️</span>
+              <BrandMark size={32} />
             )}
             <span className="truncate">{restaurant.name}</span>
           </Link>
@@ -82,7 +85,7 @@ export default async function DashboardLayout({
             </div>
           )}
         </div>
-        <Sidebar sections={[...sections]} isOwner={isOwner} />
+        <Sidebar sections={[...sections]} isOwner={isOwner} kitchenLabel={labels.kitchen} />
         <div className="mt-auto p-3 border-t border-black/10">
           <div className="text-xs text-black/50 mb-2 truncate px-1">
             {user.email}

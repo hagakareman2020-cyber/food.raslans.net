@@ -4,6 +4,7 @@ import { getMyRestaurant } from "@/lib/auth";
 import { getGroq, GROQ_MODEL, buildMenuPrompt, type MenuInput } from "@/lib/groq";
 import { fetchFoodImages, fetchFoodImage } from "@/lib/images";
 import { randomDesignIndex } from "@/lib/menuDesigns";
+import { getBusinessType } from "@/lib/businessType";
 import type { Category, Product } from "@/lib/types";
 
 const COOLDOWN_SECONDS = 60;
@@ -65,8 +66,10 @@ export async function POST() {
 
   const catName = new Map(categories.map((c) => [c.id, c.name_ar]));
 
+  const businessType = getBusinessType(restaurant.settings);
   const input: MenuInput = {
     restaurantName: restaurant.name,
+    businessType,
     products: products.map((p) => ({
       name: p.name_ar,
       category: (p.category_id && catName.get(p.category_id)) || "أخرى",
@@ -165,7 +168,8 @@ export async function POST() {
   });
 
   // صورة البطل
-  const heroQuery = (theme.hero_query as string) || (theme.cuisine as string) || "restaurant food";
+  const heroFallback = businessType === "cafe" ? "coffee shop cafe" : "restaurant food";
+  const heroQuery = (theme.hero_query as string) || (theme.cuisine as string) || heroFallback;
   const hero_image = await fetchFoodImage(heroQuery);
 
   const content = {

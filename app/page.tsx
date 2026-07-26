@@ -1,11 +1,12 @@
 import Link from "next/link";
 import PoweredBy from "@/components/PoweredBy";
+import BrandLogo, { BRAND_NAME } from "@/components/BrandLogo";
 
 const features = [
   { icon: "🧾", title: "واجهة طلبات للعملاء", desc: "منيو سهل الاستخدام يفتح بمسح كود QR على الترابيزة." },
-  { icon: "👨‍🍳", title: "لوحة إدارة المطبخ", desc: "وصول الطلبات لحظياً وتتبّعها بدون أي تحديث يدوي." },
-  { icon: "📊", title: "تحليل الأطباق والمبيعات", desc: "اكتشف أفضل الأطباق وأداء المبيعات عبر أي فترة." },
-  { icon: "❤️", title: "تفضيلات العملاء", desc: "افهم ما يحبه عملاؤك من تقييمات الأطباق والطلبات." },
+  { icon: "👨‍🍳", title: "لوحة إدارة المطبخ والبار", desc: "وصول الطلبات لحظياً وتتبّعها بدون أي تحديث يدوي." },
+  { icon: "📊", title: "تحليل الأصناف والمبيعات", desc: "اكتشف أفضل الأصناف وأداء المبيعات عبر أي فترة." },
+  { icon: "❤️", title: "تفضيلات العملاء", desc: "افهم ما يحبه عملاؤك من تقييمات الأصناف والطلبات." },
   { icon: "🍔", title: "إدارة القائمة والأسعار", desc: "أقسام ومنتجات وأسعار وصور ومدد تنفيذ بسهولة." },
   { icon: "📈", title: "تقارير مالية شاملة", desc: "تقرير إغلاق وردية (Z-Report) وإحصائيات يومية." },
 ];
@@ -15,33 +16,31 @@ export default function Home() {
     <main className="flex-1">
       {/* الهيدر */}
       <header className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-2xl">🍽️</span>
-          <span>مطعمي الذكي</span>
-        </div>
+        <BrandLogo size={38} textClassName="text-xl" subtitle />
         <Link
           href="/login"
           className="rounded-full bg-brand text-white px-5 py-2 text-sm font-semibold hover:bg-brand-dark transition"
         >
-          دخول / تسجيل مطعم
+          دخول / تسجيل
         </Link>
       </header>
 
       {/* البطل */}
       <section className="max-w-4xl mx-auto text-center px-6 pt-16 pb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
-          سيستم إدارة المطاعم الذكي
+          سيستم إدارة المطاعم والكافيهات الذكي
         </h1>
         <p className="mt-6 text-lg text-black/70 dark:text-white/70 max-w-2xl mx-auto">
-          نظام متكامل لإدارة المطاعم — من طلبات العملاء وإدارة المطبخ، إلى تحليل
-          أفضل الأطباق وأداء المبيعات، مع توليد منيو بالذكاء الاصطناعي.
+          نظام متكامل لإدارة المطاعم والكافيهات — من طلبات العملاء وإدارة المطبخ
+          والبار، إلى تحليل أفضل الأصناف وأداء المبيعات، مع توليد منيو بالذكاء
+          الاصطناعي.
         </p>
         <div className="mt-8 flex items-center justify-center gap-4">
           <Link
             href="/register"
             className="rounded-full bg-brand text-white px-7 py-3 font-semibold hover:bg-brand-dark transition"
           >
-            أضف مطعمك مجاناً
+            أضف نشاطك مجاناً
           </Link>
           <Link
             href="#features"
@@ -68,7 +67,7 @@ export default function Home() {
 
       <footer className="py-8 space-y-2">
         <p className="text-center text-sm text-black/40 dark:text-white/40">
-          © {new Date().getFullYear()} مطعمي الذكي — كل الحقوق محفوظة
+          © {new Date().getFullYear()} {BRAND_NAME} — كل الحقوق محفوظة
         </p>
         <PoweredBy />
       </footer>

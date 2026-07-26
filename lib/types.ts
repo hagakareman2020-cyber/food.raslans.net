@@ -15,6 +15,7 @@ export type Restaurant = {
     menu_pdf_url?: string;
     menu_source?: "generated" | "pdf";
     address?: string;
+    business_type?: "restaurant" | "cafe" | "both";
   };
   status: string;
   created_at: string;
