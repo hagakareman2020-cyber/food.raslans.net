@@ -55,3 +55,5 @@ android/build/
 # Firebase secrets — never commit
 google-services.json
 *firebase-adminsdk*.json
+
+.vercel
