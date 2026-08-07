@@ -1,7 +1,7 @@
 # تحويل النظام لتطبيق أندرويد (Android Studio)
 
 النظام يعمل كـ **PWA** (قابل للتثبيت من المتصفح) وكـ **تطبيق أندرويد** عبر Capacitor.
-لأن الموقع SSR، التطبيق يفتح الموقع الحيّ `https://food.raslans.net` داخل WebView →
+لأن الموقع SSR، التطبيق يفتح الموقع الحيّ `https://restcafe.raslans.net` داخل WebView →
 **المزامنة مع الموقع تلقائية** (نفس قاعدة بيانات Supabase).
 
 > ⚠️ مهم: المسار العربي `سيستم جديد تجربة` قد يكسر بناء Gradle. نفّذ خطوات Android
@@ -14,7 +14,7 @@ npm install @capacitor/core @capacitor/cli @capacitor/android
 ```
 
 ## 2) تهيئة المشروع (مرة واحدة)
-`capacitor.config.ts` جاهز بالفعل (appId=net.raslans.food، يفتح food.raslans.net).
+`capacitor.config.ts` جاهز بالفعل (appId=net.raslans.food، يفتح restcafe.raslans.net).
 ```bash
 npx cap add android
 ```

@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   appName: "مطاعم رسلان",
   webDir: "public",
   server: {
-    url: "https://food.raslans.net",
+    url: "https://restcafe.raslans.net",
     cleartext: false,
   },
   android: {
